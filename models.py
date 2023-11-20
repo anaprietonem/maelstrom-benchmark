@@ -1,37 +1,7 @@
-import argparse
-import numpy as np
-import os
-import psutil
-import resource
-import time
-import socket
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-import tensorflow as tf
 from tensorflow import keras
-import tensorflow.keras.backend as K
-
-class Dnn(keras.Model):
-    def __init__(
-        self,
-        input_shape,
-        num_outputs,
-        features=16,
-        levels=3
-        ):
-        self._num_outputs = num_outputs
-        self._features = features
-        self._levels = levels
-
-        # Build the model
-        inputs = keras.layers.Input(input_shape)
-        outputs = inputs
-        for i in range(levels):
-            outputs = keras.layers.Dense(features, activation="tanh")(outputs)
-        outputs = keras.layers.Dense(num_outputs)(outputs)
-
-        super().__init__(inputs, outputs)
-
+"""
+ML models
+"""
 class Unet(keras.Model):
     def __init__(
         self,
@@ -43,7 +13,7 @@ class Unet(keras.Model):
         conv_size=3,
         upsampling_type="conv_transpose",
     ):
-        """U-net
+        """U-net in Application 1
 
         Args:
             features (int): Number of features in the first layer
@@ -129,13 +99,24 @@ class Unet(keras.Model):
 
         return outputs
 
-"""
-Loss function
-"""
-def quantile_score(y_true, y_pred):
-    quantiles = [0.1, 0.5, 0.9]
-    qtloss = 0
-    for i, quantile in enumerate(quantiles):
-        err = y_true[..., 0] - y_pred[..., i]
-        qtloss += (quantile - tf.cast((err < 0), tf.float32)) * err
-    return K.mean(qtloss) / len(quantiles)
+class Dnn(keras.Model):
+    def __init__(
+        self,
+        input_shape,
+        num_outputs,
+        features=16,
+        levels=3
+        ):
+        self._num_outputs = num_outputs
+        self._features = features
+        self._levels = levels
+
+        # Build the model
+        inputs = keras.layers.Input(input_shape)
+        outputs = inputs
+        for i in range(levels):
+            outputs = keras.layers.Dense(features, activation="tanh")(outputs)
+        outputs = keras.layers.Dense(num_outputs)(outputs)
+
+        super().__init__(inputs, outputs)
+
